@@ -11,6 +11,7 @@ import json
 import pickle
 import sys
 import traceback
+import boto3
 
 import pandas as pd
 
@@ -28,11 +29,14 @@ os.mkdir('/opt/ml/input/config')
 os.mkdir('/opt/ml/input/data')
 os.mkdir('/opt/ml/input/data/training')
 os.system('mv /opt/program/iris.csv /opt/ml/input/data/training')
+os.system('mv /opt/program/hyperparameters.json /opt/ml/input/config')
 
 input_path = prefix + 'input/data'
 output_path = os.path.join(prefix, 'output')
 model_path = os.path.join(prefix, 'model')
 param_path = os.path.join(prefix, 'input/config/hyperparameters.json')
+
+s3client = boto3.client('s3')
 
 # This algorithm has a single channel of input data called 'training'. Since we run in
 # File mode, the input files are copied to the directory specified here.
@@ -78,6 +82,9 @@ def train():
         with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'w') as out:
             pickle.dump(clf, out)
         print('Training complete.')
+        
+        s3client.upload_file(os.path.join(model_path, 'decision-tree-model.pkl'),trainingParams['bucket'],'decision-tree-model.pkl')
+        
         
     except Exception as e:
         # Write out an error file. This will be returned as the failureReason in the

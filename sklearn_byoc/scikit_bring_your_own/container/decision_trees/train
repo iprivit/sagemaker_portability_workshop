@@ -19,17 +19,21 @@ from sklearn import tree
 
 # These are the paths to where SageMaker mounts interesting things in your container.
 
-prefix = '/opt/ml/'
+ec2 = None
 
-os.mkdir('/opt/ml')
-os.mkdir('/opt/ml/output')
-os.mkdir('/opt/ml/input')
-os.mkdir('/opt/ml/model')
-os.mkdir('/opt/ml/input/config')
-os.mkdir('/opt/ml/input/data')
-os.mkdir('/opt/ml/input/data/training')
-os.system('mv /opt/program/iris.csv /opt/ml/input/data/training')
-os.system('mv /opt/program/hyperparameters.json /opt/ml/input/config')
+prefix = '/opt/ml/'
+if not os.path.isdir('/opt/ml'):
+    os.mkdir('/opt/ml')
+    os.mkdir('/opt/ml/output')
+    os.mkdir('/opt/ml/input')
+    os.mkdir('/opt/ml/model')
+    os.mkdir('/opt/ml/input/config')
+    os.mkdir('/opt/ml/input/data')
+    os.mkdir('/opt/ml/input/data/training')
+    os.system('mv /opt/program/iris.csv /opt/ml/input/data/training')
+    os.system('mv /opt/program/hyperparameters.json /opt/ml/input/config')
+    ec2 = True
+    
 
 input_path = prefix + 'input/data'
 output_path = os.path.join(prefix, 'output')
@@ -83,7 +87,8 @@ def train():
             pickle.dump(clf, out)
         print('Training complete.')
         
-        s3client.upload_file(os.path.join(model_path, 'decision-tree-model.pkl'),trainingParams['bucket'],'decision-tree-model.pkl')
+        if ec2:
+            s3client.upload_file(os.path.join(model_path, 'decision-tree-model.pkl'),trainingParams['bucket'],'decision-tree-model.pkl')
         
         
     except Exception as e:

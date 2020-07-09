@@ -9,7 +9,9 @@ MAINTAINER Amazon AI <sage-learner@amazon.com>
 
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
          wget \
-         python \
+         python3 \
+         python3-pip\
+         python3-setuptools\
          nginx \
          ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -19,8 +21,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
 # linking them together. Likewise, pip leaves the install caches populated which uses
 # a significant amount of space. These optimizations save a fair amount of space in the
 # image, which reduces start up time.
-RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && \
-    pip install numpy==1.16.2 scipy==1.2.1 scikit-learn==0.20.2 pandas boto3 flask gevent gunicorn 
+RUN pip3 install numpy==1.16.2 scipy==1.2.1 scikit-learn==0.20.2 pandas boto3 flask gunicorn 
     #&& \
  #       (cd /usr/local/lib/python3.6/dist-packages/scipy/.libs; rm *; ln ../../numpy/.libs/* .) && \
  #       rm -rf /root/.cache
@@ -40,4 +41,6 @@ COPY decision_trees /opt/program
 COPY .aws /root/.aws 
 
 WORKDIR /opt/program
+
+
 

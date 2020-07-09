@@ -23,6 +23,7 @@ ec2 = None
 
 prefix = '/opt/ml/'
 if not os.path.isdir('/opt/ml'):
+    ec2 = True
     os.mkdir('/opt/ml')
     os.mkdir('/opt/ml/output')
     os.mkdir('/opt/ml/input')
@@ -32,7 +33,6 @@ if not os.path.isdir('/opt/ml'):
     os.mkdir('/opt/ml/input/data/training')
     os.system('mv /opt/program/iris.csv /opt/ml/input/data/training')
     os.system('mv /opt/program/hyperparameters.json /opt/ml/input/config')
-    ec2 = True
     
 
 input_path = prefix + 'input/data'
@@ -89,6 +89,7 @@ def train():
         
         if ec2:
             s3client.upload_file(os.path.join(model_path, 'decision-tree-model.pkl'),trainingParams['bucket'],'decision-tree-model.pkl')
+            print(f"Saved model to {trainingParams['bucket']}/decision-tree-model.pkl")
         
         
     except Exception as e:

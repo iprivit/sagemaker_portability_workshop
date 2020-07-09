@@ -24,19 +24,27 @@ import json
 import sys
 import subprocess
 import traceback
+import boto3
 
 # These are the paths to where SageMaker mounts interesting things in your container.
 prefix = '/opt/ml/'
 
 if not os.path.isdir('/opt/ml/input'):
+    s3 = boto3.client('s3')
+    with open('s3keys.json','r') as f:
+        s3keys = json.load(f)
     os.mkdir('/opt/ml/output')
     os.mkdir('/opt/ml/input')
     os.mkdir('/opt/ml/model')
     os.mkdir('/opt/ml/input/config')
     os.mkdir('/opt/ml/input/data')
     os.mkdir('/opt/ml/input/data/training')
-    os.system('mv /opt/program/iris.csv /opt/ml/input/data/training')
-    os.system('mv /opt/program/hyperparameters.json /opt/ml/input/config')
+    # os.system(f"aws s3 cp --recursive s3://{s3bucket}/{training_params['input_data']}/ /opt/ml/input/data")
+    s3.download_file(s3keys['bucket'], f"{s3keys['datakey']}/eval.tfrecords", '/opt/ml/input/data/training/eval.tfrecords')
+    s3.download_file(s3keys['bucket'], f"{s3keys['datakey']}/train.tfrecords", '/opt/ml/input/data/training/train.tfrecords')
+    s3.download_file(s3keys['bucket'], f"{s3keys['datakey']}/validation.tfrecords", '/opt/ml/input/data/training/validation.tfrecords')
+    # os.system('mv /opt/program/iris.csv /opt/ml/input/data/training')
+    os.system('mv /opt/ml/code/hyperparameters.json /opt/ml/input/config')
     ec2 = True
     
 input_path = os.path.join(prefix,'input/data')

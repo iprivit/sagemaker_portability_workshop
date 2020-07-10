@@ -108,7 +108,9 @@ if __name__ == '__main__':
         print('Training complete.')
         if ec2:
             dir = os.listdir('/opt/ml/model/export/Servo')[0]
-            
+            files = glob(f'/opt/ml/model/export/Servo/{dir}/*.pb')
+            print(files)
+            s3.upload_file(files[0],s3keys['bucket'],f"cifar_results/{files[0].split('/')[-1]}")
         
             #files = glob('/opt/ml/model/*')
             #for file in files:

@@ -107,13 +107,18 @@ if __name__ == '__main__':
         _run(train_cmd)
         print('Training complete.')
         if ec2:
-            files = glob('/opt/ml/model/*')
-            for file in files:
-                print(file)
-                if file not in ['/opt/ml/model/eval','/opt/ml/model/export']:
-                    s3.upload_file(os.path.join(model_path, file),s3keys['bucket'],f"cifar_results/{file.split('/')[-1]}")
-                elif file=='/opt/ml/model/export':
-                    s3.upload_file(os.path.join(model_path, file),s3keys['bucket'],f"cifar_results/{file.split('/')[-1]}")
+            dir = os.listdir('/opt/ml/model/export/Servo')[0]
+            
+        
+            #files = glob('/opt/ml/model/*')
+            #for file in files:
+            #    print(file)
+                
+                
+#                if file not in ['/opt/ml/model/eval','/opt/ml/model/export']:
+#                    s3.upload_file(os.path.join(model_path, file),s3keys['bucket'],f"cifar_results/{file.split('/')[-1]}")
+#                elif file=='/opt/ml/model/export':
+#                    s3.upload_file(os.path.join(model_path, file),s3keys['bucket'],f"cifar_results/{file.split('/')[-1]}")
                     
         # A zero exit code causes the job to be marked a Succeeded.
         sys.exit(0)
